@@ -4,6 +4,11 @@ using UnityEngine;
 public class BuildingPreview : MonoBehaviour
 {
     [SerializeField] private GridManger gridManger;
+    [SerializeField] private MeshRenderer mr;
+    [SerializeField] private Material validMaterial;
+    [SerializeField] private Material invalidMaterial;
+    private bool canPlace;
+    public bool CanPlace => canPlace;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,7 +19,11 @@ public class BuildingPreview : MonoBehaviour
     void Update()
     {
         FollowMouse();
+        UpdateVisual();
     }
+
+    private void UpdateVisual() 
+        => mr.material = canPlace ? validMaterial : invalidMaterial;
 
     private void FollowMouse()
     {
@@ -26,7 +35,10 @@ public class BuildingPreview : MonoBehaviour
             Vector3 snappedPosition = gridManger.GridToWorld(gridPosition);
 
             if (gridManger.IsInsideGrid(gridPosition))
+            {
                 transform.position = snappedPosition;
+                canPlace = !gridManger.IsCellOccupied(gridPosition);
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManger : MonoBehaviour
@@ -5,6 +6,8 @@ public class GridManger : MonoBehaviour
     [SerializeField] private int width = 20;
     [SerializeField] private int length = 20;
     [SerializeField] private float cellSize = 2f;
+
+    private Dictionary<Vector2Int, GameObject> occupiedCells = new ();
     private Vector3 originPosition;
 
     private void Start()
@@ -50,9 +53,15 @@ public class GridManger : MonoBehaviour
         return new Vector2Int(x, z);
     }
 
-    public Vector3 GridToWorld(Vector2Int gridPosition) =>
-        originPosition 
+    public Vector3 GridToWorld(Vector2Int gridPosition)
+        => originPosition 
         + new Vector3(gridPosition.x * cellSize + cellSize / 2f, 
                         0, 
                         gridPosition.y * cellSize + cellSize / 2f);
+
+    public bool IsCellOccupied(Vector2Int position)
+        => occupiedCells.ContainsKey(position);
+
+    public void OccupiedCell(Vector2Int position, GameObject building)
+        => occupiedCells.Add(position, building); 
 }
