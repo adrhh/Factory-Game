@@ -12,7 +12,11 @@ public class BuildingPreview : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        // if (gridManger == null)
+        // {
+        //     var manger = GameObject.FindWithTag("Grid");
+        //     gridManger = manger.GetComponent<GridManger>();
+        // }
     }
 
     // Update is called once per frame

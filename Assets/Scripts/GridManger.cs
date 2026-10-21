@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteAlways]
 public class GridManger : MonoBehaviour
 {
     [SerializeField] private int width = 20;
