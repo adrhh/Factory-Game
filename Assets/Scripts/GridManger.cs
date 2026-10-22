@@ -5,26 +5,14 @@ using UnityEngine;
 public class GridManger : MonoBehaviour
 {
     [SerializeField] private int width = 20;
-    [SerializeField] private int length = 20;
+    [SerializeField] private int height = 20;
     [SerializeField] private float cellSize = 2f;
 
     private Dictionary<Vector2Int, GameObject> occupiedCells = new ();
-    private Vector3 originPosition;
-
-    private void Start()
-    {
-        originPosition = transform.position;
-    }
-
+    private Vector3 originPosition => transform.position;
     private void OnDrawGizmos()
     {
         DrawGrid();
-    }
-
-    public bool IsInsideGrid(Vector2Int gridPosition)
-    {
-        return gridPosition.x >= 0 && gridPosition.x < width
-            && gridPosition.y >= 0 && gridPosition.y < length; 
     }
 
     private void DrawGrid()
@@ -34,10 +22,10 @@ public class GridManger : MonoBehaviour
         for (int x = 0; x <= width; x++)
         {
             Vector3 startPos = originPosition + new Vector3(x * cellSize, 0, 0);
-            Vector3 endPos = originPosition + new Vector3(x * cellSize, 0, length * cellSize);
+            Vector3 endPos = originPosition + new Vector3(x * cellSize, 0, height * cellSize);
             Gizmos.DrawLine(startPos, endPos);
         }
-        for (int y = 0; y <= length; y++)
+        for (int y = 0; y <= height; y++)
         {
             Vector3 startPos = originPosition + new Vector3(0, 0, y * cellSize);
             Vector3 endPos = originPosition + new Vector3(width * cellSize, 0, y * cellSize);
@@ -54,15 +42,61 @@ public class GridManger : MonoBehaviour
         return new Vector2Int(x, z);
     }
 
-    public Vector3 GridToWorld(Vector2Int gridPosition)
-        => originPosition 
-        + new Vector3(gridPosition.x * cellSize + cellSize / 2f, 
-                        0, 
-                        gridPosition.y * cellSize + cellSize / 2f);
+    public Vector3 GridToWorld(Vector2Int gridPosition, Vector2Int size)
+    {
+        Vector3 worldPosition = originPosition;
 
-    public bool IsCellOccupied(Vector2Int position)
-        => occupiedCells.ContainsKey(position);
+        worldPosition.x += gridPosition.x * cellSize;
+        worldPosition.z += gridPosition.y * cellSize;
 
-    public void OccupiedCell(Vector2Int position, GameObject building)
-        => occupiedCells.Add(position, building); 
+        worldPosition.x += (size.x * cellSize) / 2f;
+        worldPosition.z += (size.y * cellSize) / 2f;
+        
+        return worldPosition;
+    }
+
+    public Vector2Int ClampToGrind(Vector2Int gridPosition, Vector2Int size)
+    {
+        int x = Mathf.Clamp(gridPosition.x, 0, width - size.x);
+        int y = Mathf.Clamp(gridPosition.y, 0, height - size.y);
+        return new Vector2Int(x, y);
+    }
+
+    public void OccupyArea(Vector2Int origin, Vector2Int size, GameObject building)
+    {
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                Vector2Int gridPosition = origin + new Vector2Int(x, y);
+                occupiedCells.Add(gridPosition, building);
+            }
+        }
+    }
+
+    public bool CanPlaceBuilding(Vector2Int origin, Vector2Int size)
+    {
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                Vector2Int gridPosition = origin + new Vector2Int(x, y);
+                if (occupiedCells.ContainsKey(gridPosition))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    // public bool IsInsideGrid(Vector2Int gridPosition)
+    // {
+    //     return gridPosition.x >= 0 && gridPosition.x < width
+    //         && gridPosition.y >= 0 && gridPosition.y < length; 
+    // }
+
+    // public bool IsCellOccupied(Vector2Int position)
+    //     => occupiedCells.ContainsKey(position);
+
+    // public void OccupiedCell(Vector2Int position, GameObject building)
+    //     => occupiedCells.Add(position, building); 
 }
