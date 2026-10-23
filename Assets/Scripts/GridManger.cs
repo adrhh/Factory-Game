@@ -7,14 +7,34 @@ public class GridManger : MonoBehaviour
     [SerializeField] private int width = 20;
     [SerializeField] private int height = 20;
     [SerializeField] private float cellSize = 2f;
+    [SerializeField] private Transform gridVisual;
 
     private Dictionary<Vector2Int, GameObject> occupiedCells = new ();
     private Vector3 originPosition => transform.position;
+    [Space]
+    [SerializeField] private bool ShouldDrawGizmos = false;
+
+    private void Start()
+    {
+        SetupGridVisual();
+    }
+    
+    private void SetupGridVisual()
+    {
+        float worldWidth = width * cellSize;
+        float worldHeight = height * cellSize;
+
+        gridVisual.localScale = new Vector3(worldWidth / 10, 1, worldHeight / 10);
+        gridVisual.position = originPosition + new Vector3(worldWidth / 2, 0.1f, worldHeight / 2);
+
+        Renderer renderer = gridVisual.GetComponent<Renderer>();
+        renderer.material.mainTextureScale = new Vector2(width, height);
+    }   
     private void OnDrawGizmos()
     {
-        DrawGrid();
+        if (ShouldDrawGizmos)
+            DrawGrid();
     }
-
     private void DrawGrid()
     {
         Gizmos.color = Color.white;

@@ -14,20 +14,17 @@ public class BuildingPreview : MonoBehaviour
 
     private Vector2Int currentGridPosition;
     public Vector2Int CurrentGridPosition => currentGridPosition;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        // if (gridManger == null)
-        // {
-        //     var manger = GameObject.FindWithTag("Grid");
-        //     gridManger = manger.GetComponent<GridManger>();
-        // }
-    }
+    public Vector2Int CurrentSizeDate => CurrentSize;
+    private int rotation = 0;
+    private Vector2Int CurrentSize
+        => rotation % 180 == 0 
+        ? currentBuilding.size 
+        : new Vector2Int(currentBuilding.size.y, currentBuilding.size.y);
 
     // Update is called once per frame
     void Update()
     {
+        RotatePreview();
         FollowMouse();
         UpdateVisual();
     }
@@ -42,11 +39,20 @@ public class BuildingPreview : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100, groundMask))
         {
             currentGridPosition = gridManger.WorldToGrid(hit.point);
-            currentGridPosition = gridManger.ClampToGrind(currentGridPosition, currentBuilding.size);
-            Vector3 snappedPosition = gridManger.GridToWorld(currentGridPosition, currentBuilding.size);
+            currentGridPosition = gridManger.ClampToGrind(currentGridPosition, CurrentSize);
+            Vector3 snappedPosition = gridManger.GridToWorld(currentGridPosition, CurrentSize);
             
             transform.position = snappedPosition;
-            canPlace = gridManger.CanPlaceBuilding(currentGridPosition, currentBuilding.size);
+            canPlace = gridManger.CanPlaceBuilding(currentGridPosition, CurrentSize);
+        }
+    }
+
+    private void RotatePreview()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            rotation += 90;
+            transform.rotation = Quaternion.Euler(0, rotation, 0);
         }
     }
 }

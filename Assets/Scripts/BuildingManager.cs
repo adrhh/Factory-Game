@@ -16,8 +16,8 @@ public class BuildingManager : MonoBehaviour
     {
         if (preview.CanPlace && Input.GetMouseButtonDown(0)) // 0 = left, 1 = right click 
         {
-            GameObject placeObject = Instantiate(currentBuilding.prefab, preview.transform.position, Quaternion.identity);
-            gridManger.OccupyArea(preview.CurrentGridPosition, currentBuilding.size, placeObject);
+            GameObject placeObject = Instantiate(currentBuilding.prefab, preview.transform.position, preview.transform.rotation);
+            gridManger.OccupyArea(preview.CurrentGridPosition, preview.CurrentSizeDate, placeObject);
         }
     }
 }
