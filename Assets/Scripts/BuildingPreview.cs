@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class BuildingPreview : MonoBehaviour
@@ -8,6 +9,10 @@ public class BuildingPreview : MonoBehaviour
     [SerializeField] private Material validMaterial;
     [SerializeField] private Material invalidMaterial;
     [SerializeField] private LayerMask groundMask;
+    [SerializeField] private Transform topOutline;
+    [SerializeField] private Transform backOutline;
+    [SerializeField] private Transform rightOutline;
+    [SerializeField] private Transform leftOutline;
     private bool canPlace;
     public bool CanPlace => canPlace;
 
@@ -27,6 +32,7 @@ public class BuildingPreview : MonoBehaviour
         RotatePreview();
         FollowMouse();
         UpdateVisual();
+        UpdateOutline();
     }
 
     private void UpdateVisual() 
@@ -54,5 +60,24 @@ public class BuildingPreview : MonoBehaviour
             rotation += 90;
             transform.rotation = Quaternion.Euler(0, rotation, 0);
         }
+    }
+
+    private void UpdateOutline()
+    {
+        float width = CurrentSize.x * 2;
+        float height = CurrentSize.y * 2;
+        float thickness = 0.1f;
+
+        topOutline.localScale = new Vector3(width, thickness, thickness);
+        backOutline.localScale = new Vector3(width, thickness, thickness);
+
+        rightOutline.localScale = new Vector3(thickness, thickness, height);
+        leftOutline.localScale = new Vector3(thickness, thickness, height);
+
+        topOutline.localPosition = new Vector3(0, 0.2f, height / 2);
+        backOutline.localPosition = new Vector3(0, 0.2f, - height / 2);
+
+        rightOutline.localPosition = new Vector3(-width / 2, 0.2f, 0);
+        leftOutline.localPosition = new Vector3(width / 2, 0.2f, 0);
     }
 }
