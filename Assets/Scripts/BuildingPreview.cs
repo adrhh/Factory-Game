@@ -3,9 +3,8 @@ using UnityEngine;
 
 public class BuildingPreview : MonoBehaviour
 {
-    [SerializeField] private BuildingData currentBuilding;
     [SerializeField] private GridManger gridManger;
-    [SerializeField] private MeshRenderer mr;
+    [SerializeField] private Renderer[] currentRenderers;
     [SerializeField] private Material validMaterial;
     [SerializeField] private Material invalidMaterial;
     [SerializeField] private LayerMask groundMask;
@@ -13,10 +12,12 @@ public class BuildingPreview : MonoBehaviour
     [SerializeField] private Transform backOutline;
     [SerializeField] private Transform rightOutline;
     [SerializeField] private Transform leftOutline;
+    [SerializeField] private Transform visualHolder;
     private bool canPlace;
     public bool CanPlace => canPlace;
 
-
+    private BuildingData currentBuilding;
+    private GameObject currentVisual;
     private Vector2Int currentGridPosition;
     public Vector2Int CurrentGridPosition => currentGridPosition;
     public Vector2Int CurrentSizeDate => CurrentSize;
@@ -31,12 +32,37 @@ public class BuildingPreview : MonoBehaviour
     {
         RotatePreview();
         FollowMouse();
-        UpdateVisual();
         UpdateOutline();
+        UpdateVisual();
     }
 
-    private void UpdateVisual() 
-        => mr.material = canPlace ? validMaterial : invalidMaterial;
+    public void SelectBuilding(BuildingData building)
+    {
+        currentBuilding = building;
+
+        if (currentBuilding != null)
+        {
+            Destroy(currentVisual);
+        }
+
+        currentVisual = Instantiate(building.previewPrefab, visualHolder);
+        currentRenderers = GetComponentsInChildren<Renderer>();
+        currentVisual.transform.localPosition = Vector3.zero;
+        currentVisual.transform.localRotation = Quaternion.identity;
+
+    }
+
+    private void UpdateVisual()
+    {
+        if (currentRenderers == null)
+            return;
+        
+        Material targetMaterial = canPlace ? validMaterial : invalidMaterial;
+
+        foreach (var renderer in currentRenderers)
+            renderer.material = targetMaterial;
+    }
+        
 
     private void FollowMouse()
     {
