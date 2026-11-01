@@ -53,6 +53,22 @@ public class BuildingManager : MonoBehaviour
         {
             currentBuildingIndex = 3;
         }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            currentBuildingIndex = 4;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            currentBuildingIndex = 5;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            currentBuildingIndex = 6;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            currentBuildingIndex = 7;
+        }
 
         preview.SelectBuilding(CurrentBuilding);
     }

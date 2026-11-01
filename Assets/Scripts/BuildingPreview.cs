@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class BuildingPreview : MonoBehaviour
@@ -60,7 +59,8 @@ public class BuildingPreview : MonoBehaviour
         Material targetMaterial = canPlace ? validMaterial : invalidMaterial;
 
         foreach (var renderer in currentRenderers)
-            renderer.material = targetMaterial;
+            if (renderer.gameObject.tag != "Outline")
+                renderer.material = targetMaterial;
     }
         
 
