@@ -12,6 +12,7 @@ public class BuildingPreview : MonoBehaviour
     [SerializeField] private Transform rightOutline;
     [SerializeField] private Transform leftOutline;
     [SerializeField] private Transform visualHolder;
+    [SerializeField] private Transform outlineParent;
     private bool canPlace;
     public bool CanPlace => canPlace;
 
@@ -24,7 +25,7 @@ public class BuildingPreview : MonoBehaviour
     private Vector2Int CurrentSize
         => rotation % 180 == 0 
         ? currentBuilding.size 
-        : new Vector2Int(currentBuilding.size.y, currentBuilding.size.y);
+        : new Vector2Int(currentBuilding.size.y, currentBuilding.size.x);
 
     // Update is called once per frame
     void Update()
@@ -85,6 +86,8 @@ public class BuildingPreview : MonoBehaviour
         {
             rotation += 90;
             transform.rotation = Quaternion.Euler(0, rotation, 0);
+            currentGridPosition = gridManger.ClampToGrind(currentGridPosition, CurrentSize);
+            transform.position = gridManger.GridToWorld(currentGridPosition, CurrentSize);
         }
     }
 
@@ -105,5 +108,7 @@ public class BuildingPreview : MonoBehaviour
 
         rightOutline.localPosition = new Vector3(-width / 2, 0.2f, 0);
         leftOutline.localPosition = new Vector3(width / 2, 0.2f, 0);
+
+        outlineParent.localRotation = transform.localRotation;
     }
 }
