@@ -60,7 +60,7 @@ public class BuildingPreview : MonoBehaviour
         Material targetMaterial = canPlace ? validMaterial : invalidMaterial;
 
         foreach (var renderer in currentRenderers)
-            if (renderer.gameObject.tag != "Outline")
+            if (renderer != null && renderer.gameObject.tag != "Outline")
                 renderer.material = targetMaterial;
     }
         

@@ -107,15 +107,15 @@ public class GridManger : MonoBehaviour
         return true;
     }
 
-    // public bool IsInsideGrid(Vector2Int gridPosition)
-    // {
-    //     return gridPosition.x >= 0 && gridPosition.x < width
-    //         && gridPosition.y >= 0 && gridPosition.y < length; 
-    // }
-
-    // public bool IsCellOccupied(Vector2Int position)
-    //     => occupiedCells.ContainsKey(position);
-
-    // public void OccupiedCell(Vector2Int position, GameObject building)
-    //     => occupiedCells.Add(position, building); 
+    public void ClearArea(Vector2Int origin, Vector2Int size)
+    {
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                Vector2Int gridPosition = origin + new Vector2Int(x, y);
+                occupiedCells.Remove(gridPosition);
+            }
+        }
+    }
 }
