@@ -12,6 +12,8 @@ public class BuildingManager : MonoBehaviour
     private bool removeMode;
     private int currentBuildingIndex;
     private BuildingData CurrentBuilding => building[currentBuildingIndex];
+    private PlacedBuilding currentHighlightedBuilding;
+
     private void Start()
     {
         buildingMode = false;
@@ -115,20 +117,33 @@ public class BuildingManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100, buildingMask))
         {
-            Debug.Log(hit.collider.name);
             PlacedBuilding placeBuilding = hit.collider.GetComponentInParent<PlacedBuilding>();
 
             if (placeBuilding == null)
             {
-                Debug.Log("Build not found!");
+                UpdateRemoveHighlight(null);
                 return;
             }
+
+            UpdateRemoveHighlight(placeBuilding);
             
             if (Input.GetMouseButton(0))  // 0 = left, 1 = right click
             {
                 gridManger.ClearArea(placeBuilding.origin, placeBuilding.size);
+                UpdateRemoveHighlight(null);
                 Destroy(placeBuilding.gameObject);
             }
         }
+        else
+        {
+            UpdateRemoveHighlight(null);
+        }
+    }
+
+    private void UpdateRemoveHighlight(PlacedBuilding placedBuilding)
+    {
+        currentHighlightedBuilding?.SetHighlight(false);
+        currentHighlightedBuilding = placedBuilding;
+        currentHighlightedBuilding?.SetHighlight(true);
     }
 }
