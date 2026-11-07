@@ -7,6 +7,16 @@ public class Conveyor : MonoBehaviour
 
     public Transform InputPoint => inputPoint;
     public Transform OutputPoint => outputPoint;
+    public Conveyor nextConveyor;
+    public Conveyor prevConveyor;
+
+    public void ConnectTo(Conveyor conveyor)
+    {
+        nextConveyor = conveyor;
+        conveyor.prevConveyor = this;
+
+        Debug.Log($"{this} connected to: {nextConveyor}");
+    }
 
     private void OnDrawGizmos()
     {

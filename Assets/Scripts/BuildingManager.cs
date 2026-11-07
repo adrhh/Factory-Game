@@ -14,6 +14,8 @@ public class BuildingManager : MonoBehaviour
     private BuildingData CurrentBuilding => building[currentBuildingIndex];
     private PlacedBuilding currentHighlightedBuilding;
 
+    private const float conveyorDistanceToConnect = 0.3f;
+
     private void Start()
     {
         buildingMode = false;
@@ -108,6 +110,10 @@ public class BuildingManager : MonoBehaviour
             placeBuilding.size = preview.CurrentSizeDate;
 
             gridManger.OccupyArea(preview.CurrentGridPosition, preview.CurrentSizeDate, placeObject);
+
+            Conveyor conveyor = placeBuilding.GetComponent<Conveyor>();
+            if (conveyor != null)
+                ConnectConveyors(conveyor);
         }
     }
 
@@ -145,5 +151,30 @@ public class BuildingManager : MonoBehaviour
         currentHighlightedBuilding?.SetHighlight(false);
         currentHighlightedBuilding = placedBuilding;
         currentHighlightedBuilding?.SetHighlight(true);
+    }
+
+    private void ConnectConveyors(Conveyor conveyor)
+    {
+        Conveyor[] conveyors = FindObjectsByType<Conveyor>(FindObjectsSortMode.None);
+
+        foreach (var other in conveyors)
+        {
+            if (other == conveyor)
+                continue;
+            
+            float outputDistance = 
+                Vector3.Distance(conveyor.OutputPoint.position, other.InputPoint.position);
+
+            if (outputDistance < conveyorDistanceToConnect)
+                conveyor.ConnectTo(other);
+
+            float inputDistance = 
+                Vector3.Distance(conveyor.InputPoint.position, other.OutputPoint.position);
+
+            if (inputDistance < conveyorDistanceToConnect)
+                conveyor.ConnectTo(other);
+
+            Debug.Log($"inputDistance: {inputDistance}, outputDistance: {outputDistance}");
+        }
     }
 }
