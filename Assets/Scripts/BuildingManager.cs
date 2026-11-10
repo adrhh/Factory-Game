@@ -14,7 +14,7 @@ public class BuildingManager : MonoBehaviour
     private BuildingData CurrentBuilding => building[currentBuildingIndex];
     private PlacedBuilding currentHighlightedBuilding;
 
-    private const float conveyorDistanceToConnect = 0.3f;
+    private const float conveyorDistanceToConnect = 0.4f;
 
     private void Start()
     {
@@ -172,7 +172,7 @@ public class BuildingManager : MonoBehaviour
                 Vector3.Distance(conveyor.InputPoint.position, other.OutputPoint.position);
 
             if (inputDistance < conveyorDistanceToConnect)
-                conveyor.ConnectTo(other);
+                other.ConnectTo(conveyor);
 
             Debug.Log($"inputDistance: {inputDistance}, outputDistance: {outputDistance}");
         }

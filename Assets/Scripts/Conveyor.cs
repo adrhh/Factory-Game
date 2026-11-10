@@ -4,10 +4,16 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
+    public enum ConveyorType
+    {
+        Straight,
+        Corner
+    }
     [SerializeField] Transform inputPoint;
     [SerializeField] Transform outputPoint;
     public List<ConveyorItem> Items = new ();
     [SerializeField] float moveSpeed = 2f;
+    [SerializeField] ConveyorType conveyorType;
 
     public Transform InputPoint => inputPoint;
     public Transform OutputPoint => outputPoint;
@@ -33,15 +39,12 @@ public class Conveyor : MonoBehaviour
     }
     private void MoveItems()
     {
-        for (int i = Items.Count - 1; i > 0; i--)
+        for (int i = Items.Count - 1; i >= 0; i--)
         {
             ConveyorItem conveyorItem = Items[i];
             conveyorItem.moveProgress += moveSpeed * Time.deltaTime;
             conveyorItem.moveProgress = Mathf.Clamp01(conveyorItem.moveProgress);
-            conveyorItem.transform.position = Vector3.Lerp(
-                InputPoint.position, 
-                OutputPoint.position,
-                conveyorItem.moveProgress);
+            conveyorItem.transform.position = GetItemPosition(conveyorItem.moveProgress);
             if (conveyorItem.moveProgress >= 1)
             {
                 TransferItem(conveyorItem);
@@ -49,13 +52,44 @@ public class Conveyor : MonoBehaviour
         }
     }
 
+    private Vector3 GetItemPosition(float progress)
+    {   
+        if (conveyorType == ConveyorType.Straight)
+        {
+            return GetItemStraightPosition(progress);
+        }
+
+        return GetItemCornerPosition(progress);
+    }
+
+    private Vector3 GetItemStraightPosition(float progress)
+    {
+        return Vector3.Lerp(
+            InputPoint.position,
+            OutputPoint.position,
+            progress);
+    }
+
+    private Vector3 GetItemCornerPosition(float progress)
+    {   
+        Vector3 center = transform.position;
+        Vector3 startPosition = (inputPoint.position - center).normalized;
+        Vector3 endPosition = (outputPoint.position - center).normalized;
+        Vector3 direction = Vector3.Slerp(startPosition, endPosition, progress);
+
+        float radius = Vector3.Distance(center, inputPoint.position);
+        return direction * radius + center;
+    }
+
     private void TransferItem(ConveyorItem conveyorItem)
     {
-        string nextConveyorName = conveyorItem.ToString() ?? "null";
+        string nextConveyorName = nextConveyor != null
+            ? nextConveyor.name
+            : "null";
         Debug.Log($"{conveyorItem} transfered from {this} to {nextConveyorName}");
         if (nextConveyor != null)
         {
-            AddItem(conveyorItem);
+            nextConveyor.AddItem(conveyorItem);
         }
         else
         {
@@ -66,8 +100,9 @@ public class Conveyor : MonoBehaviour
 
     private void AddItem(ConveyorItem conveyorItem)
     {
-        conveyorItem.moveProgress = 0;
-        nextConveyor.Items.Add(conveyorItem);
+        conveyorItem.moveProgress = 0f;
+        conveyorItem.transform.position = InputPoint.position;
+        Items.Add(conveyorItem);
     }
 
     public void ConnectTo(Conveyor conveyor)
