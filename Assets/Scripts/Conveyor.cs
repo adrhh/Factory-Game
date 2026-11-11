@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public class Conveyor : MonoBehaviour
@@ -14,6 +16,7 @@ public class Conveyor : MonoBehaviour
     public List<ConveyorItem> Items = new ();
     [SerializeField] float moveSpeed = 2f;
     [SerializeField] ConveyorType conveyorType;
+    [SerializeField] float itemSpacing = 0.5f;
 
     public Transform InputPoint => inputPoint;
     public Transform OutputPoint => outputPoint;
@@ -22,6 +25,19 @@ public class Conveyor : MonoBehaviour
 
     // TEST
     [SerializeField] ConveyorItem test;
+
+    private void Update()
+    {
+        MoveItems();
+        SpawnTestItem();
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var item in Items)
+            if (item != null)
+                Destroy(item.gameObject);
+    }
 
     private void SpawnTestItem()
     {
@@ -32,22 +48,18 @@ public class Conveyor : MonoBehaviour
             Items.Add(item);
         }
     }
-    private void Update()
-    {
-        MoveItems();
-        SpawnTestItem();
-    }
     private void MoveItems()
     {
         for (int i = Items.Count - 1; i >= 0; i--)
         {
-            ConveyorItem conveyorItem = Items[i];
-            conveyorItem.moveProgress += moveSpeed * Time.deltaTime;
-            conveyorItem.moveProgress = Mathf.Clamp01(conveyorItem.moveProgress);
-            conveyorItem.transform.position = GetItemPosition(conveyorItem.moveProgress);
-            if (conveyorItem.moveProgress >= 1)
+            ConveyorItem item = Items[i];
+            float targetProgress = 1 - itemSpacing * i;
+            item.moveProgress += moveSpeed * Time.deltaTime;
+            item.moveProgress = Mathf.Min(targetProgress, item.moveProgress);
+            item.transform.position = GetItemPosition(item.moveProgress);
+            if (item.moveProgress >= 1)
             {
-                TransferItem(conveyorItem);
+                TransferItem(item);
             }
         }
     }
