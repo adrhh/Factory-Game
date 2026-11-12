@@ -17,6 +17,7 @@ public class Conveyor : MonoBehaviour
     [SerializeField] float moveSpeed = 2f;
     [SerializeField] ConveyorType conveyorType;
     [SerializeField] float itemSpacing = 0.5f;
+    [SerializeField] bool drawGizmos = false;
 
     public Transform InputPoint => inputPoint;
     public Transform OutputPoint => outputPoint;
@@ -39,6 +40,24 @@ public class Conveyor : MonoBehaviour
                 Destroy(item.gameObject);
     }
 
+    private bool IsBlocked()
+    {
+        if (nextConveyor == null)
+        {
+            return true;
+        }
+        return !CanAcceptItem();
+    }
+
+    private bool CanAcceptItem()
+    {
+        if (Items.Count == 0)
+            return true;
+    
+        ConveyorItem firstItem = Items[0];
+        return firstItem.moveProgress > itemSpacing;
+    }
+
     private void SpawnTestItem()
     {
         if (Input.GetKeyDown(KeyCode.T) && test != null)
@@ -54,6 +73,11 @@ public class Conveyor : MonoBehaviour
         {
             ConveyorItem item = Items[i];
             float targetProgress = 1 - itemSpacing * i;
+            if (i == 0 && IsBlocked())
+            {
+                targetProgress = 0.95f;
+            }
+
             item.moveProgress += moveSpeed * Time.deltaTime;
             item.moveProgress = Mathf.Min(targetProgress, item.moveProgress);
             item.transform.position = GetItemPosition(item.moveProgress);
@@ -127,11 +151,14 @@ public class Conveyor : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(inputPoint.position, 0.4f);
+        if (drawGizmos)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(inputPoint.position, 0.4f);
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(outputPoint.position, 0.4f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(outputPoint.position, 0.4f);
+        }
     }
 
 }

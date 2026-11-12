@@ -7,6 +7,7 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private BuildingData[] building;
     [SerializeField] private BuildingPreview preview;
     [SerializeField] private LayerMask buildingMask;
+    public static bool IsBuildingMode;
 
     private bool buildingMode;
     private bool removeMode;
@@ -43,6 +44,7 @@ public class BuildingManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             buildingMode = !buildingMode;
+            IsBuildingMode = buildingMode;
             if (removeMode && buildingMode)
                 removeMode = false;
             preview.gameObject.SetActive(buildingMode);
