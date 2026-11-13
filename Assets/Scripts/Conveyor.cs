@@ -11,13 +11,18 @@ public class Conveyor : MonoBehaviour
         Straight,
         Corner
     }
+    [Header("In/Out points")]
     [SerializeField] Transform inputPoint;
     [SerializeField] Transform outputPoint;
+    [SerializeField] GameObject inputArrow;
+    [SerializeField] GameObject outputArrow;
+    [Header("Items")]
     public List<ConveyorItem> Items = new ();
     [SerializeField] float moveSpeed = 2f;
     [SerializeField] ConveyorType conveyorType;
     [SerializeField] float itemSpacing = 0.5f;
     [SerializeField] bool drawGizmos = false;
+    
 
     public Transform InputPoint => inputPoint;
     public Transform OutputPoint => outputPoint;
@@ -31,6 +36,18 @@ public class Conveyor : MonoBehaviour
     {
         MoveItems();
         SpawnTestItem();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateArrow();
+    }
+
+    private void UpdateArrow()
+    {
+        bool showArrows = BuildingManager.IsBuildingMode;
+        inputArrow.SetActive(showArrows && prevConveyor == null);
+        outputArrow.SetActive(showArrows && nextConveyor == null);
     }
 
     private void OnDestroy()
