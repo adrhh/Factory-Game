@@ -57,6 +57,30 @@ public class Conveyor : MonoBehaviour
                 Destroy(item.gameObject);
     }
 
+    public void AddItem(ConveyorItem conveyorItem)
+    {
+        conveyorItem.moveProgress = 0f;
+        conveyorItem.transform.position = InputPoint.position;
+        Items.Add(conveyorItem);
+    }
+
+    public void ConnectTo(Conveyor conveyor)
+    {
+        nextConveyor = conveyor;
+        conveyor.prevConveyor = this;
+
+        Debug.Log($"{this} connected to: {nextConveyor}");
+    }
+
+    public bool CanAcceptItem()
+    {
+        if (Items.Count == 0)
+            return true;
+    
+        ConveyorItem firstItem = Items[0];
+        return firstItem.moveProgress > itemSpacing;
+    }
+
     private bool IsBlocked()
     {
         if (nextConveyor == null)
@@ -64,15 +88,6 @@ public class Conveyor : MonoBehaviour
             return true;
         }
         return !CanAcceptItem();
-    }
-
-    private bool CanAcceptItem()
-    {
-        if (Items.Count == 0)
-            return true;
-    
-        ConveyorItem firstItem = Items[0];
-        return firstItem.moveProgress > itemSpacing;
     }
 
     private void SpawnTestItem()
@@ -149,21 +164,6 @@ public class Conveyor : MonoBehaviour
             Destroy(conveyorItem.gameObject);
         }
         Items.Remove(conveyorItem);
-    }
-
-    private void AddItem(ConveyorItem conveyorItem)
-    {
-        conveyorItem.moveProgress = 0f;
-        conveyorItem.transform.position = InputPoint.position;
-        Items.Add(conveyorItem);
-    }
-
-    public void ConnectTo(Conveyor conveyor)
-    {
-        nextConveyor = conveyor;
-        conveyor.prevConveyor = this;
-
-        Debug.Log($"{this} connected to: {nextConveyor}");
     }
 
     private void OnDrawGizmos()
