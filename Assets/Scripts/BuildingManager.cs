@@ -3,6 +3,15 @@ using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
 {
+    private readonly Vector2Int[] directions =
+    {
+        Vector2Int.zero,
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right
+    };
+
     [SerializeField] private GridManger gridManger;
     [SerializeField] private BuildingData[] building;
     [SerializeField] private BuildingPreview preview;
@@ -16,6 +25,8 @@ public class BuildingManager : MonoBehaviour
     private PlacedBuilding currentHighlightedBuilding;
 
     private const float conveyorDistanceToConnect = 0.4f;
+    private const float conveyorDistanceToConnectToBuilding = 3f;
+
 
     private void Start()
     {
@@ -105,17 +116,21 @@ public class BuildingManager : MonoBehaviour
     {
         if (preview.CanPlace && Input.GetMouseButtonDown(0)) // 0 = left, 1 = right click 
         {
-            GameObject placeObject = Instantiate(CurrentBuilding.prefab, preview.transform.position, preview.transform.rotation);
+            GameObject placedObject = Instantiate(CurrentBuilding.prefab, preview.transform.position, preview.transform.rotation);
             
-            PlacedBuilding placeBuilding = placeObject.GetComponent<PlacedBuilding>();
-            placeBuilding.origin = preview.CurrentGridPosition;
-            placeBuilding.size = preview.CurrentSizeDate;
+            PlacedBuilding placedBuilding = placedObject.GetComponent<PlacedBuilding>();
+            placedBuilding.origin = preview.CurrentGridPosition;
+            placedBuilding.size = preview.CurrentSizeDate;
 
-            gridManger.OccupyArea(preview.CurrentGridPosition, preview.CurrentSizeDate, placeObject);
+            gridManger.OccupyArea(preview.CurrentGridPosition, preview.CurrentSizeDate, placedObject);
 
-            Conveyor conveyor = placeBuilding.GetComponent<Conveyor>();
+            Conveyor conveyor = placedBuilding.GetComponent<Conveyor>();
             if (conveyor != null)
                 ConnectConveyors(conveyor);
+
+            IConveyorOutput outputBuilding = placedBuilding.GetComponent<IConveyorOutput>();
+            if (outputBuilding != null)
+                ConnectOutputBuilding(outputBuilding);
         }
     }
 
@@ -177,6 +192,32 @@ public class BuildingManager : MonoBehaviour
                 other.ConnectTo(conveyor);
 
             Debug.Log($"inputDistance: {inputDistance}, outputDistance: {outputDistance}");
+        }
+    }
+
+    private void ConnectOutputBuilding(IConveyorOutput building)
+    {
+        Vector2Int outputGridPosition = gridManger.WorldToGrid(building.OutputPoint.position);
+        foreach (Vector2Int direction in directions)
+        {
+            Vector2Int neighborPosition = outputGridPosition + direction;
+            GameObject neighborBuilding = gridManger.GetBuilding(neighborPosition);
+            if (neighborBuilding == null)
+                continue;
+
+            Conveyor conveyor = neighborBuilding.GetComponent<Conveyor>();
+            if (conveyor == null)
+                continue;
+            
+            float distance = Vector3.Distance(
+                building.OutputPoint.position,
+                conveyor.InputPoint.position);
+            
+            if (distance < conveyorDistanceToConnectToBuilding)
+            {
+                building.SetOutputConveyor(conveyor);
+                break;
+            }
         }
     }
 }

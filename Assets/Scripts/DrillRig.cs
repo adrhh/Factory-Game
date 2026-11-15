@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
 
-public class DrillRig : MonoBehaviour
+public class DrillRig : MonoBehaviour, IConveyorOutput
 {
     [SerializeField] Conveyor outputConveyor;
     [SerializeField] ConveyorItem itemPrefab;
     [SerializeField] float productionInterval = 1f;
+    [SerializeField] Transform outputPoint;
+    public Transform OutputPoint => outputPoint;
 
     private float timer;
 
@@ -22,6 +24,11 @@ public class DrillRig : MonoBehaviour
             ProduceItem();
             timer = 0;
         }
+    }
+
+    public void SetOutputConveyor(Conveyor conveyor)
+    {
+        outputConveyor = conveyor;
     }
 
     private void ProduceItem()

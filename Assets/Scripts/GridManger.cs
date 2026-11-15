@@ -118,4 +118,10 @@ public class GridManger : MonoBehaviour
             }
         }
     }
+
+    
+    public GameObject GetBuilding(Vector2Int position) =>
+        occupiedCells.TryGetValue(position, out GameObject gameObject) 
+            ? gameObject 
+            : null;
 }
