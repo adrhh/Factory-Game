@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingManager : MonoBehaviour
@@ -131,6 +132,8 @@ public class BuildingManager : MonoBehaviour
             IConveyorOutput outputBuilding = placedBuilding.GetComponent<IConveyorOutput>();
             if (outputBuilding != null)
                 ConnectOutputBuilding(outputBuilding);
+            
+            RefreshNearbyConnections(preview.CurrentGridPosition);
         }
     }
 
@@ -218,6 +221,24 @@ public class BuildingManager : MonoBehaviour
                 building.SetOutputConveyor(conveyor);
                 break;
             }
+        }
+    }
+
+    private void RefreshNearbyConnections(Vector2Int centerPosition)
+    {
+        foreach (Vector2Int direction in directions)
+        {
+            Vector2Int checkPosition = centerPosition + direction;
+            GameObject building = gridManger.GetBuilding(checkPosition);
+
+            if (building == null)
+                continue;
+
+            IConveyorOutput outputBuilding = building.GetComponent<IConveyorOutput>();
+            if (outputBuilding == null)
+                continue;
+
+            ConnectOutputBuilding(outputBuilding);
         }
     }
 }
