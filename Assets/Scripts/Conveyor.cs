@@ -46,7 +46,7 @@ public class Conveyor : MonoBehaviour
     private void UpdateArrow()
     {
         bool showArrows = BuildingManager.IsBuildingMode;
-        inputArrow.SetActive(showArrows && prevConveyor == null);
+        inputArrow.SetActive(showArrows && !(HasInputConnection()));
         outputArrow.SetActive(showArrows && nextConveyor == null);
     }
 
@@ -88,6 +88,21 @@ public class Conveyor : MonoBehaviour
             return true;
         }
         return !CanAcceptItem();
+    }
+
+    private bool HasInputConnection()
+    {
+        if (prevConveyor != null)
+            return true;
+        
+        Collider[] colliders = Physics.OverlapSphere(inputPoint.position, 1);
+        foreach (var collider in colliders)
+        {
+            IConveyorOutput output = collider.GetComponentInParent<IConveyorOutput>();
+            if (output != null)
+                return true;
+        }
+        return false;
     }
 
     private void SpawnTestItem()

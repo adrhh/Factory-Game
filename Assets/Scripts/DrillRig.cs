@@ -4,9 +4,9 @@ using UnityEngine;
 public class DrillRig : MonoBehaviour, IConveyorOutput
 {
     [SerializeField] Conveyor outputConveyor;
-    [SerializeField] ConveyorItem itemPrefab;
     [SerializeField] float productionInterval = 1f;
     [SerializeField] Transform outputPoint;
+    [SerializeField] OreNode currentOreNode;
     public Transform OutputPoint => outputPoint;
 
     private float timer;
@@ -31,19 +31,23 @@ public class DrillRig : MonoBehaviour, IConveyorOutput
         outputConveyor = conveyor;
     }
 
+    public void SetNode(OreNode node) => currentOreNode = node;
+  
+
     private void ProduceItem()
     {
         if (outputConveyor == null)
             return;
         if (!outputConveyor.CanAcceptItem())
             return;
+        if (currentOreNode == null)
+            return;
         
         ConveyorItem item = Instantiate(
-            itemPrefab, 
+            currentOreNode.OrePrefab, 
             outputConveyor.InputPoint.position, 
             Quaternion.identity);
 
         outputConveyor.AddItem(item);
-
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Net.Http;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -132,6 +134,10 @@ public class BuildingManager : MonoBehaviour
             IConveyorOutput outputBuilding = placedBuilding.GetComponent<IConveyorOutput>();
             if (outputBuilding != null)
                 ConnectOutputBuilding(outputBuilding);
+
+            DrillRig drillRig = placedBuilding.GetComponent<DrillRig>();
+            if (drillRig != null)
+                AssignOreNode(drillRig);
             
             RefreshNearbyConnections(preview.CurrentGridPosition);
         }
@@ -239,6 +245,27 @@ public class BuildingManager : MonoBehaviour
                 continue;
 
             ConnectOutputBuilding(outputBuilding);
+        }
+    }
+
+    private void AssignOreNode(DrillRig drillRig)
+    {
+        Collider[] colliders = Physics.OverlapBox(
+            drillRig.transform.position,
+            Vector3.one,
+            Quaternion.identity);
+        
+        foreach (Collider collider in colliders)
+        {
+            OreNode oreNode = collider.GetComponent<OreNode>();
+            if (oreNode == null)
+                continue;
+            else
+            {
+                drillRig.SetNode(oreNode);
+                Debug.Log("Node assigned!");
+                return;
+            }
         }
     }
 }

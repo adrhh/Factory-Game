@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class BuildingPreview : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class BuildingPreview : MonoBehaviour
     [SerializeField] private Transform leftOutline;
     [SerializeField] private Transform visualHolder;
     [SerializeField] private Transform outlineParent;
+    [SerializeField] private LayerMask oreNodeMask;
     private bool canPlace;
     public bool CanPlace => canPlace;
 
@@ -49,21 +51,7 @@ public class BuildingPreview : MonoBehaviour
         currentRenderers = GetComponentsInChildren<Renderer>();
         currentVisual.transform.localPosition = Vector3.zero;
         currentVisual.transform.localRotation = Quaternion.identity;
-
     }
-
-    private void UpdateVisual()
-    {
-        if (currentRenderers == null)
-            return;
-        
-        Material targetMaterial = canPlace ? validMaterial : invalidMaterial;
-
-        foreach (var renderer in currentRenderers)
-            if (renderer != null && renderer.gameObject.tag != "Outline")
-                renderer.material = targetMaterial;
-    }
-        
 
     private void FollowMouse()
     {
@@ -77,7 +65,24 @@ public class BuildingPreview : MonoBehaviour
             
             transform.position = snappedPosition;
             canPlace = gridManger.CanPlaceBuilding(currentGridPosition, CurrentSize);
+
+            if (currentBuilding.requiresOreNode)
+            {
+                canPlace &= HasOreNode();
+            }
         }
+    }
+
+    private void UpdateVisual()
+    {
+        if (currentRenderers == null)
+            return;
+        
+        Material targetMaterial = canPlace ? validMaterial : invalidMaterial;
+
+        foreach (var renderer in currentRenderers)
+            if (renderer != null && renderer.gameObject.tag != "Outline")
+                renderer.material = targetMaterial;
     }
 
     private void RotatePreview()
@@ -111,4 +116,11 @@ public class BuildingPreview : MonoBehaviour
 
         outlineParent.localRotation = transform.localRotation;
     }
+
+    private bool HasOreNode() =>
+        Physics.OverlapBox(
+            transform.position,
+            Vector3.one,
+            Quaternion.identity,
+            oreNodeMask).Length > 0;
 }
