@@ -62,6 +62,7 @@ public class Conveyor : MonoBehaviour
         conveyorItem.moveProgress = 0f;
         conveyorItem.transform.position = InputPoint.position;
         Items.Add(conveyorItem);
+        conveyorItem.currentConveyor = this;
     }
 
     public void ConnectTo(Conveyor conveyor)
@@ -132,6 +133,14 @@ public class Conveyor : MonoBehaviour
             {
                 TransferItem(item);
             }
+        }
+    }
+
+    public void TakeItem(ConveyorItem item)
+    {
+        if (Items.Contains(item))
+        {
+            Items.Remove(item);
         }
     }
 
