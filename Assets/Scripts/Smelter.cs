@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Smelter : MonoBehaviour
+public class Smelter : MonoBehaviour, IConveyorOutput
 {
     [SerializeField] Transform outputPoint;
     [SerializeField] Transform inputPoint;
@@ -8,9 +8,24 @@ public class Smelter : MonoBehaviour
     [SerializeField] ItemData requiredItem;
     [SerializeField] ConveyorItem outputPrefab;
     [SerializeField] float productionTime = 2f;
+    public Transform OutputPoint => outputPoint;
 
     private ConveyorItem storedItem;
     private float timer;
+
+    private void Update()
+    {
+        if (storedItem == null)
+            return;
+        
+        timer += Time.deltaTime;
+
+        if (timer >= productionTime)
+        {
+            FinishProduction();
+            timer = 0;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -26,7 +41,29 @@ public class Smelter : MonoBehaviour
         if (conveyor != null)
             conveyor.TakeItem(item);
         
-        Destroy(item.gameObject);
-        timer = 0;
+        storedItem = item;
+        item.gameObject.SetActive(false);
+    }
+
+    public void SetOutputConveyor(Conveyor conveyor)
+    {
+        outputConveyor = conveyor;
+    }
+
+    private void FinishProduction()
+    {
+        if (outputConveyor == null)
+            return;
+        if (!outputConveyor.CanAcceptItem())
+            return;
+        
+        ConveyorItem conveyorItem = Instantiate(
+            outputPrefab,
+            outputPoint.position,
+            Quaternion.identity);
+        
+        outputConveyor.AddItem(conveyorItem);
+        Destroy(storedItem.gameObject);
+        storedItem = null;
     }
 }

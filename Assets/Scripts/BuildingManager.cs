@@ -131,7 +131,7 @@ public class BuildingManager : MonoBehaviour
             if (conveyor != null)
                 ConnectConveyors(conveyor);
 
-            IConveyorOutput outputBuilding = placedBuilding.GetComponent<IConveyorOutput>();
+            IConveyorOutput outputBuilding = placedObject.GetComponent<IConveyorOutput>();
             if (outputBuilding != null)
                 ConnectOutputBuilding(outputBuilding);
 
