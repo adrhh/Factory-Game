@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Smelter : MonoBehaviour, IConveyorOutput
@@ -8,14 +9,17 @@ public class Smelter : MonoBehaviour, IConveyorOutput
     [SerializeField] ItemData requiredItem;
     [SerializeField] ConveyorItem outputPrefab;
     [SerializeField] float productionTime = 2f;
+    [SerializeField] int maxOre = 10;
+    [SerializeField] int orePerIngot = 2; 
     public Transform OutputPoint => outputPoint;
 
-    private ConveyorItem storedItem;
+    private int storedOre;
+
     private float timer;
 
     private void Update()
     {
-        if (storedItem == null)
+        if (storedOre < orePerIngot)
             return;
         
         timer += Time.deltaTime;
@@ -29,20 +33,35 @@ public class Smelter : MonoBehaviour, IConveyorOutput
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("OnTriggerEnter!");
+        Debug.Log("OnTriggerEnter! start");
         ConveyorItem item = other.GetComponent<ConveyorItem>();
         if (item == null)
+        {
+            Debug.Log("item == null");
+            return;
+        }
+
+        if (item.ItemData != requiredItem)
+        {
+            Debug.Log(item + " != " + requiredItem);
+            return;
+        }
+        if (storedOre > maxOre)
             return;
 
-        if (item != requiredItem)
-            return;
 
         Conveyor conveyor = item.currentConveyor;
+        Debug.Log(conveyor);
         if (conveyor != null)
+        {
+            Debug.Log("conveyor != null");
             conveyor.TakeItem(item);
+        }
         
-        storedItem = item;
+        storedOre++;
         item.gameObject.SetActive(false);
+        Destroy(item.gameObject);
+        Debug.Log("OnTriggerEnter! end");
     }
 
     public void SetOutputConveyor(Conveyor conveyor)
@@ -52,10 +71,13 @@ public class Smelter : MonoBehaviour, IConveyorOutput
 
     private void FinishProduction()
     {
+        Debug.Log("FinishProduction! start");
         if (outputConveyor == null)
             return;
         if (!outputConveyor.CanAcceptItem())
             return;
+
+        storedOre -= orePerIngot;
         
         ConveyorItem conveyorItem = Instantiate(
             outputPrefab,
@@ -63,7 +85,5 @@ public class Smelter : MonoBehaviour, IConveyorOutput
             Quaternion.identity);
         
         outputConveyor.AddItem(conveyorItem);
-        Destroy(storedItem.gameObject);
-        storedItem = null;
     }
 }
